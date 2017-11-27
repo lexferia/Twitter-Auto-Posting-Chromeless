@@ -1,0 +1,31 @@
+{
+  "name": "twitterautoposting",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "pm2 start index.js",
+    "stop": "pm2 stop index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chromeless": "^1.3.0",
+    "ejs": "^2.5.7",
+    "exceljs": "^0.6.2",
+    "express": "^4.16.2",
+    "express-fileupload": "^0.3.0",
+    "mysql2": "^1.4.2",
+    "nightmare": "^2.10.0",
+    "nightmare-upload": "^0.1.1",
+    "nodemon": "^1.12.1",
+    "public-ip": "^2.3.5",
+    "request-promise": "^4.2.2",
+    "sequelize": "^4.17.1",
+    "shuffle-array": "^1.0.1",
+    "socket.io": "^2.0.4"
+  },
+  "directories": {
+    "lib": "lib"
+  },
+  "description": ""
+}

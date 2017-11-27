@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"></script>
+
+    <script src="//code.jquery.com/jquery-latest.min.js"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css">
+
+    <title>MukAL</title>
+  </head>
+  <body>
+
+    <div class="jumbotron" style="background-color: #3399FF;color: white;padding-top: 10px; padding-bottom: 10px; padding-left: 50px;">
+      <h1>MukAL</h1>
+      <h6>Advertising Promotion<h6>
+    </div>
+
+    <ul class="nav nav-tabs" role="tablist" style="padding-left: 50px; margin-top: -30px; margin-bottom: 10px;">
+      <li class="nav-item"><a id="homepage" class="nav-link" data-toggle="tab" href="/" aria-controls="home">Home</a></li>
+      <li class="nav-item"><a id="userpage" class="nav-link active" data-toggle="tab" href="/users" aria-controls="userList">User List</a></li>
+      <!-- <li class="nav-item"><a id="promopage" class="nav-link" role="tab" data-toggle="tab" href="/" aria-controls="promoList">Promo List</a></li> -->
+    </ul>
+
+    <button type="button" id="btnDeleteAll" class="btn btn-primary" style="margin-left: 50px;">Delete All</button>
+
+    <div style="float: right; margin-right: 50px; margin-bottom: 10px;">
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#userModal" onclick="onAddEdit(guid(),'','','Add User')">Create New Account</button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#excelUploadModal">Upload Excel File</button>
+    </div>
+
+    <div style="padding-left: 50px; padding-right: 50px;">
+      <table class="table table-bordered table-hover table-striped">
+        <thead class="thead-dark">
+          <tr>
+            <th width="10%" scope="col">#</th>
+            <th width="40%" scope="col">Username</th>
+            <th width="40%" scope="col">Password</th>
+            <th width="10%" scope="col">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for(var i=0; i < users.length; i++) { %>
+            <tr>
+              <th scope="row"><%= i + 1 %></th>
+              <td><%= users[i].username %></td>
+              <td><%= users[i].password %></td>
+              <td>
+                <button type="button" class="btn btn-primary" data-toggle="modal" onclick="onAddEdit('<%= users[i].id %>','<%= users[i].username %>','<%= users[i].password %>','Edit User')" data-target="#userModal">Edit</button>
+                <button type="button" class="btn btn-primary" style="display: inline;" onclick="onDelete('<%= users[i].id %>')">Remove</button>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-labelledby="User" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="userModalTitle"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="username" class="col-form-label">Username:</label>
+              <input type="text" class="form-control" id="username">
+            </div>
+            <div class="form-group">
+              <label for="password" class="col-form-label">Password:</label>
+              <input type="text" class="form-control" id="password">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="btnSave" class="btn btn-primary" onclick="onSave()">Save</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="excelUploadModal" tabindex="-1" role="dialog" aria-labelledby="ExcelUpload" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Excel Importer</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form ref='uploadForm' id='uploadForm' method='POST' encType="multipart/form-data">
+              <input type="file" name="excelFile" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+              <!-- <input type='submit' value='Upload' id='btnUpload'/> -->
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="btnImport" class="btn btn-primary" data-dismiss="modal">Import</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="text/javascript">
+
+      var _id;
+
+      function onAddEdit(id, username, password, action) {
+          _id = id
+          $('#userModalTitle').val(action)
+          $('#username').val(username)
+          $('#password').val(password)
+      }
+
+      function onSave() {
+
+        if ($('#username').val() == '') {
+            alert('Please enter username.')
+            return
+        }
+
+        if ($('#password').val() == '') {
+            alert('Please enter password.')
+            return
+        }
+
+        if ($('#userModalTitle').val() == 'Add User') {
+
+          if (confirm('Do you really want to add this account?')) {
+            $.ajax({
+              type: 'POST',
+              url: '/users',
+              data: {
+                action: 'Insert',
+                id: _id,
+                username: $('#username').val(),
+                password: $('#password').val()
+              }
+            })
+          }
+
+        } else {
+
+          if (confirm('Do you really want to update this account?')) {
+            $.ajax({
+              type: 'POST',
+              url: '/users',
+              data: {
+                action: 'Update',
+                id: _id,
+                username: $('#username').val(),
+                password: $('#password').val()
+              }
+            })
+          }
+
+        }
+
+        location.reload()
+      }
+
+      function onDelete(id) {
+
+        if (confirm('Do you really want to remove this account?')) {
+          $.ajax({
+            type: 'POST',
+            url: '/users',
+            data: {
+              action: 'Delete',
+              id: id,
+              username: $('#username').val(),
+              password: $('#password').val()
+            },
+            success: function(res) {
+              location.reload()
+            }
+          })
+        }
+
+      }
+
+      $('#homepage').click(function () {
+        window.location.replace("/")
+      })
+
+      $('#btnDeleteAll').click(function () {
+
+          if (confirm('Do you really want to delete all accounts?')) {
+            $.ajax({
+              type: 'POST',
+              url: '/users',
+              data: {
+                action: 'DeleteAll',
+                id: '',
+                username: '',
+                password: ''
+              },
+              success: function(res) {
+                alert("All accounts are deleted.")
+                location.reload()
+              }
+            })
+          }
+
+      })
+
+      $('#btnImport').click(function (event) {
+
+        event.preventDefault()
+
+        var form = $('#uploadForm')[0]
+        var data = new FormData(form)
+
+        $('#btnImport').prop('disabled', true)
+
+        $.ajax({
+            type: "POST",
+            enctype: 'multipart/form-data',
+            url: "/upload",
+            data: data,
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 600000,
+            success: function (data) {
+                alert('File imported successfully. ')
+                $("#btnImport").prop("disabled", false)
+                location.reload()
+            },
+            error: function (err) {
+                alert("File upload error. \n" + '(' + err.status + ') ' + err.responseText)
+                $("#btnImport").prop("disabled", false)
+            }
+        })
+      })
+
+      function guid() {
+
+        function s4() {
+          return Math.floor((1 + Math.random()) * 0x10000)
+                     .toString(16)
+                     .substring(1);
+        }
+
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+          s4() + '-' + s4() + s4() + s4();
+      }
+
+    </script>
+  </body>
+</html>
